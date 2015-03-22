@@ -25,6 +25,7 @@ typedef struct Disc {
  double mass;
  double radius;
 } Disc;
+
 static int score = 0;
 static Window *s_main_window;
 static Window *alien_main_window;
@@ -53,6 +54,7 @@ static int num2;
 static void next_animation();
 static void next_animation2();
 
+//Finishes loading the window (game over image)
 static void end_window_load(Window *window){
   Layer *window_layer = window_get_root_layer(alien_main_window);
   GRect bounds = layer_get_bounds(window_layer);
@@ -71,6 +73,7 @@ static void end_window_unload(Window *window){
 static void anim_stopped_handler(Animation *animation, bool finished, void *context) {
  // Free the animation
  property_animation_destroy(s_box_animation);
+  
  // Schedule the next one, unless the app is exiting
  if (finished) {
    next_animation();
@@ -87,30 +90,35 @@ static void anim_stopped_handler2(Animation *animation, bool finished, void *con
  }
 }
 
+//Executes when game is over, puts game over window
 static void game_over() {
-
   window_stack_push(alien_main_window, true);
   s_box_layer = NULL;
   s_box_layer2 = NULL;
 }
 
+//controls movement of one block across screen to left
 static void next_animation() {
+  
  // Determine start and finish positions
  GRect start, finish;
-  srand(time(NULL));
-  int val = rand();
-  if (track){
+ srand(time(NULL));
+ int val = rand();
+ 
+ //if gone all across screen then go to new random y-location, or else check for collision 
+ if (track){
    num =  val % 100 + 10;
-    //num = 50;
-  } else {
-    score++;
-    int vall = disc.pos.y - num;
-    if (vall < 31 && vall > -2){
+ } else {
+   score++;
+   int vall = disc.pos.y - num;
+   if (vall < 31 && vall > -2){
        game_over();
        text_layer_set_text(s_text_layer, "DEAD");
-     }
+   }
   }
  GRect frame = window_frame;
+  
+  //goes to x-location of the circle and checks to see if collide then continues
   if (track){
    switch (s_current_stage){
      default:
@@ -144,10 +152,14 @@ static void next_animation() {
  s_current_stage = (s_current_stage + 1) % 4;
 }
 
+//controls animation of second rectangle flying across screen to left
 static void next_animation2() {
+  
  // Determine start and finish positions
  GRect start, finish;
   int val = rand();
+  
+  //if done moving across screen, goes to new random y-location
   if (track2){
    num2 = val % 140 + 10;
     //num = 50;
@@ -159,6 +171,8 @@ static void next_animation2() {
      }
   }
  GRect frame = window_frame;
+  
+  //Pauses when get to x-location of circle and checks for collision
   if (track2){
    switch (s_current_stage2){
      default:
@@ -196,6 +210,7 @@ static double disc_calc_mass(Disc *disc) {
  return MATH_PI * disc->radius * disc->radius * DISC_DENSITY;
 }
 
+//initializes the disc information
 static void disc_init(Disc *disc) {
  GRect frame = window_frame;
  disc->pos.x = frame.size.w/10;
@@ -230,12 +245,12 @@ static void disc_update(Disc *disc) {
 }
 
 static void disc_draw(GContext *ctx, Disc *disc) {
-#ifdef PBL_COLOR
- graphics_context_set_fill_color(ctx, disc->color);
-#else
- graphics_context_set_fill_color(ctx, GColorWhite);
-#endif
- graphics_fill_circle(ctx, GPoint(disc->pos.x, disc->pos.y), disc->radius);
+  #ifdef PBL_COLOR
+   graphics_context_set_fill_color(ctx, disc->color);
+  #else
+   graphics_context_set_fill_color(ctx, GColorWhite);
+  #endif
+   graphics_fill_circle(ctx, GPoint(disc->pos.x, disc->pos.y), disc->radius);
 }
 
 static void disc_layer_update_callback(Layer *me, GContext *ctx) {
@@ -292,14 +307,8 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
  next_animation2();
 }
 
-static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-
-
-}
-
 static void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
-  window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
 }
 
 static void init(void) {
@@ -324,8 +333,6 @@ static void init(void) {
  accel_data_service_subscribe(0, NULL);
 
  app_timer_register(ACCEL_STEP_MS, timer_callback, NULL);
-
-
 }
 
 static void deinit(void) {
@@ -333,15 +340,12 @@ static void deinit(void) {
  animation_unschedule_all();
 
  // Destroy main Window
- window_destroy(s_main_window);
-  
-  window_destroy(alien_main_window);
+ window_destroy(s_main_window); 
+ window_destroy(alien_main_window);
 }
-
-
 
 int main(void) {
   init();
- app_event_loop();
- deinit();
+  app_event_loop();
+  deinit();
 }
