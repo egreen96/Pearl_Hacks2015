@@ -1,0 +1,26 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "elisesoccer7@aol.com",
+    "longName": "Dodge Game",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/gameOver2.png",
+                "name": "GAME2",
+                "type": "png"
+            }
+        ]
+    },
+    "sdkVersion": "2",
+    "shortName": "Dodge Game",
+    "uuid": "175a2259-d39f-48f4-860c-50c9343b8baa",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
